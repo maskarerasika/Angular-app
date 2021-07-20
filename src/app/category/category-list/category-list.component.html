@@ -1,0 +1,22 @@
+<h4>Category:</h4>
+
+<table *ngIf="categories.length > 0" class="table">
+    <thead>
+        <tr>
+            <th scope="col">Name</th>
+            <th scope="col">Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr *ngFor="let category of categories">
+            <td>{{ category.name }}</td>
+            <td> <a class="delete" (click)="delete(category._id)">Delete</a> </td>
+        </tr>
+    </tbody>
+</table>
+
+<div *ngIf="categories.length === 0" class="alert alert-info" role="info">
+    <span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span>
+    <span class="sr-only">Information:</span>
+    The Category collection is empty.
+</div>

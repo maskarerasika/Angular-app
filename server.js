@@ -9,6 +9,7 @@ var ObjectID = mongodb.ObjectID;
 var database;
 // The products collection
 var PRODUCTS_COLLECTION = "products";
+var CATEGORY_COLLECTION = "categories"
 
 // Create new instance of the express server
 var app = express();
@@ -72,6 +73,15 @@ app.get("/api/products", function (req, res) {
         }
     });
 });
+app.get("/api/category", function (req, res) {
+    database.collection(CATEGORY_COLLECTION).find({}).toArray(function (error, data) {
+        if (error) {
+            manageError(res, err.message, "Failed to get categories.");
+        } else {
+            res.status(200).json(data);
+        }
+    });
+});
 
 /*  "/api/products"
  *   POST: creates a new product
@@ -93,6 +103,21 @@ app.post("/api/products", function (req, res) {
         });
     }
 });
+app.post("/api/category", function (req, res) {
+    var category = req.body;
+
+    if (!category.name) {
+        manageError(res, "Invalid category input", "Name is mandatory.", 400);
+    } else {
+        database.collection(CATEGORY_COLLECTION).insertOne(category, function (err, doc) {
+            if (err) {
+                manageError(res, err.message, "Failed to create new category.");
+            } else {
+                res.status(201).json(doc.ops[0]);
+            }
+        });
+    }
+});
 
 /*  "/api/products/:id"
  *   DELETE: deletes product by id
@@ -104,6 +129,19 @@ app.delete("/api/products/:id", function (req, res) {
         database.collection(PRODUCTS_COLLECTION).deleteOne({ _id: new ObjectID(req.params.id) }, function (err, result) {
             if (err) {
                 manageError(res, err.message, "Failed to delete product.");
+            } else {
+                res.status(200).json(req.params.id);
+            }
+        });
+    }
+});
+app.delete("/api/category/:id", function (req, res) {
+    if (req.params.id.length > 24 || req.params.id.length < 24) {
+        manageError(res, "Invalid category id", "ID must be a single String of 12 bytes or a string of 24 hex characters.", 400);
+    } else {
+        database.collection(CATEGORY_COLLECTION).deleteOne({ _id: new ObjectID(req.params.id) }, function (err, result) {
+            if (err) {
+                manageError(res, err.message, "Failed to delete category.");
             } else {
                 res.status(200).json(req.params.id);
             }
